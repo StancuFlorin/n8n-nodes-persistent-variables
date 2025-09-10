@@ -4,7 +4,7 @@ import type {
 	INodeType,
 	INodeTypeDescription,
 } from 'n8n-workflow';
-import { NodeConnectionType, NodeOperationError } from 'n8n-workflow';
+import { NodeConnectionType, NodeOperationError, ApplicationError } from 'n8n-workflow';
 import { SqliteService } from './SqliteService';
 
 export class PersistentVariablesNode implements INodeType {
@@ -40,10 +40,10 @@ export class PersistentVariablesNode implements INodeType {
 						action: 'Get a variable',
 					},
 					{
-						name: 'Get All Variables',
+						name: 'Get Many',
 						value: 'getAll',
-						description: 'Retrieve all stored variables',
-						action: 'Get all variables',
+						description: 'Retrieve many stored variables',
+						action: 'Get many variables',
 					},
 					{
 						name: 'Delete Variable',
@@ -73,19 +73,14 @@ export class PersistentVariablesNode implements INodeType {
 				type: 'options',
 				options: [
 					{
-						name: 'String',
-						value: 'string',
-						description: 'Store as text string',
-					},
-					{
-						name: 'Number',
-						value: 'number',
-						description: 'Store as numeric value',
-					},
-					{
 						name: 'Boolean',
 						value: 'boolean',
 						description: 'Store as true/false value',
+					},
+					{
+						name: 'Date',
+						value: 'date',
+						description: 'Store as date value',
 					},
 					{
 						name: 'JSON',
@@ -93,9 +88,14 @@ export class PersistentVariablesNode implements INodeType {
 						description: 'Store as JSON object/array',
 					},
 					{
-						name: 'Date',
-						value: 'date',
-						description: 'Store as date value',
+						name: 'Number',
+						value: 'number',
+						description: 'Store as numeric value',
+					},
+					{
+						name: 'String',
+						value: 'string',
+						description: 'Store as text string',
 					},
 				],
 				default: 'string',
@@ -162,7 +162,7 @@ export class PersistentVariablesNode implements INodeType {
 								case 'number':
 									parsedValue = Number(variableValue);
 									if (isNaN(parsedValue)) {
-										throw new Error('Invalid number format');
+										throw new ApplicationError('Invalid number format', { level: 'warning' });
 									}
 									break;
 								case 'boolean':
@@ -174,7 +174,7 @@ export class PersistentVariablesNode implements INodeType {
 								case 'date':
 									parsedValue = new Date(variableValue);
 									if (isNaN(parsedValue.getTime())) {
-										throw new Error('Invalid date format');
+										throw new ApplicationError('Invalid date format', { level: 'warning' });
 									}
 									break;
 								default:
