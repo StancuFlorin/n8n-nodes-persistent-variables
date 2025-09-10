@@ -1,4 +1,3 @@
-import * as sqlite3 from 'sqlite3';
 import * as path from 'path';
 import * as fs from 'fs';
 
@@ -11,7 +10,7 @@ export interface VariableData {
 }
 
 export class SqliteService {
-  private db: sqlite3.Database | null = null;
+  private db: any = null;
   private dbPath: string;
 
   constructor(dbPath?: string) {
@@ -27,6 +26,9 @@ export class SqliteService {
         fs.mkdirSync(dir, { recursive: true });
       }
 
+      // Use the built-in sqlite3 module that's available in n8n
+      const sqlite3 = require('sqlite3');
+      
       this.db = new sqlite3.Database(this.dbPath, (err: Error | null) => {
         if (err) {
           reject(err);
@@ -147,7 +149,7 @@ export class SqliteService {
       this.db!.run(
         'DELETE FROM variables WHERE name = ?',
         [name],
-        function(this: sqlite3.RunResult, err: Error | null) {
+        function(this: any, err: Error | null) {
           if (err) {
             reject(err);
             return;

@@ -4,7 +4,7 @@ A custom n8n node for storing and retrieving persistent variables using SQLite d
 
 ## Features
 
-- **Persistent Storage**: Variables are stored in a local SQLite database file
+- **Persistent Storage**: Variables are stored in a local SQLite database file (uses built-in SQLite)
 - **Multiple Data Types**: Support for string, number, boolean, JSON, and date types
 - **CRUD Operations**: Set, get, delete, and list all variables
 - **Type Safety**: Automatic type conversion and validation
