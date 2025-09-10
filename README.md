@@ -1,48 +1,187 @@
-![Banner image](https://user-images.githubusercontent.com/10284570/173569848-c624317f-42b1-45a6-ab09-f0ea3c247648.png)
+# n8n-nodes-persistent-variables
 
-# n8n-nodes-starter
+A custom n8n node for storing and retrieving persistent variables using SQLite database. This node allows you to maintain state across workflow executions and share data between different workflows.
 
-This repo contains example nodes to help you get started building your own custom integrations for [n8n](https://n8n.io). It includes the node linter and other dependencies.
+## Features
 
-To make your custom node available to the community, you must create it as an npm package, and [submit it to the npm registry](https://docs.npmjs.com/packages-and-modules/contributing-packages-to-the-registry).
+- **Persistent Storage**: Variables are stored in a local SQLite database file
+- **Multiple Data Types**: Support for string, number, boolean, JSON, and date types
+- **CRUD Operations**: Set, get, delete, and list all variables
+- **Type Safety**: Automatic type conversion and validation
+- **Cross-Workflow Sharing**: Variables can be accessed from any workflow
+- **Custom Database Path**: Option to specify custom database file location
 
-If you would like your node to be available on n8n cloud you can also [submit your node for verification](https://docs.n8n.io/integrations/creating-nodes/deploy/submit-community-nodes/).
+## Installation
 
-## Prerequisites
-
-You need the following installed on your development machine:
-
-* [git](https://git-scm.com/downloads)
-* Node.js and npm. Minimum version Node 20. You can find instructions on how to install both using nvm (Node Version Manager) for Linux, Mac, and WSL [here](https://github.com/nvm-sh/nvm). For Windows users, refer to Microsoft's guide to [Install NodeJS on Windows](https://docs.microsoft.com/en-us/windows/dev-environment/javascript/nodejs-on-windows).
-* Install n8n with:
-  ```
-  npm install n8n -g
-  ```
-* Recommended: follow n8n's guide to [set up your development environment](https://docs.n8n.io/integrations/creating-nodes/build/node-development-environment/).
-
-## Using this starter
-
-These are the basic steps for working with the starter. For detailed guidance on creating and publishing nodes, refer to the [documentation](https://docs.n8n.io/integrations/creating-nodes/).
-
-1. [Generate a new repository](https://github.com/n8n-io/n8n-nodes-starter/generate) from this template repository.
-2. Clone your new repo:
+1. Install the package:
+   ```bash
+   npm install n8n-nodes-persistent-variables
    ```
-   git clone https://github.com/<your organization>/<your-repo-name>.git
+
+2. The node will be automatically available in your n8n instance.
+
+## Usage
+
+### Operations
+
+The Persistent Variables node supports four main operations:
+
+#### 1. Set Variable
+Store a variable with a specific name and value.
+
+**Parameters:**
+- **Variable Name**: The name of the variable to store
+- **Variable Type**: The data type (string, number, boolean, json, date)
+- **Variable Value**: The value to store
+- **Database Path**: (Optional) Custom path for the SQLite database file
+
+**Example:**
+- Variable Name: `userCount`
+- Variable Type: `number`
+- Variable Value: `42`
+
+#### 2. Get Variable
+Retrieve a variable by its name.
+
+**Parameters:**
+- **Variable Name**: The name of the variable to retrieve
+- **Database Path**: (Optional) Custom path for the SQLite database file
+
+**Output:**
+```json
+{
+  "success": true,
+  "operation": "get",
+  "variableName": "userCount",
+  "variableType": "number",
+  "value": 42,
+  "createdAt": "2024-01-01T12:00:00.000Z",
+  "updatedAt": "2024-01-01T12:00:00.000Z"
+}
+```
+
+#### 3. Get All Variables
+Retrieve all stored variables.
+
+**Parameters:**
+- **Database Path**: (Optional) Custom path for the SQLite database file
+
+**Output:**
+```json
+{
+  "success": true,
+  "operation": "getAll",
+  "variables": {
+    "userCount": {
+      "value": 42,
+      "type": "number",
+      "createdAt": "2024-01-01T12:00:00.000Z",
+      "updatedAt": "2024-01-01T12:00:00.000Z"
+    },
+    "lastUser": {
+      "value": "john@example.com",
+      "type": "string",
+      "createdAt": "2024-01-01T12:05:00.000Z",
+      "updatedAt": "2024-01-01T12:05:00.000Z"
+    }
+  },
+  "count": 2
+}
+```
+
+#### 4. Delete Variable
+Remove a variable by its name.
+
+**Parameters:**
+- **Variable Name**: The name of the variable to delete
+- **Database Path**: (Optional) Custom path for the SQLite database file
+
+### Data Types
+
+#### String
+Store text values.
+- **Example**: `"Hello World"`
+
+#### Number
+Store numeric values (integers and decimals).
+- **Example**: `42`, `3.14`
+
+#### Boolean
+Store true/false values.
+- **Example**: `true`, `false`
+
+#### JSON
+Store complex objects and arrays.
+- **Example**: `{"name": "John", "age": 30}`, `[1, 2, 3]`
+
+#### Date
+Store date and time values.
+- **Example**: `"2024-01-01T12:00:00.000Z"`
+
+### Database Location
+
+By default, the SQLite database is stored as `persistent_variables.db` in your n8n working directory. You can specify a custom path using the "Database Path" parameter.
+
+### Use Cases
+
+1. **Counter Variables**: Track counts across workflow executions
+2. **User Sessions**: Store user data between workflow runs
+3. **Configuration**: Store application settings
+4. **State Management**: Maintain workflow state
+5. **Data Caching**: Cache frequently accessed data
+6. **Cross-Workflow Communication**: Share data between different workflows
+
+### Example Workflows
+
+#### Counter Workflow
+1. Use "Get Variable" to retrieve current count
+2. Increment the count
+3. Use "Set Variable" to store the new count
+
+#### User Session Management
+1. Use "Set Variable" to store user login information
+2. Use "Get Variable" in subsequent workflows to access user data
+3. Use "Delete Variable" to clear session on logout
+
+## Development
+
+### Prerequisites
+
+- Node.js 20 or higher
+- npm or yarn
+
+### Setup
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/StancuFlorin/n8n-nodes-persistent-variables.git
+   cd n8n-nodes-persistent-variables
    ```
-3. Run `npm i` to install dependencies.
-4. Open the project in your editor.
-5. Browse the examples in `/nodes` and `/credentials`. Modify the examples, or replace them with your own nodes.
-6. Update the `package.json` to match your details.
-7. Run `npm run lint` to check for errors or `npm run lintfix` to automatically fix errors when possible.
-8. Test your node locally. Refer to [Run your node locally](https://docs.n8n.io/integrations/creating-nodes/test/run-node-locally/) for guidance.
-9. Replace this README with documentation for your node. Use the [README_TEMPLATE](README_TEMPLATE.md) to get started.
-10. Update the LICENSE file to use your details.
-11. [Publish](https://docs.npmjs.com/packages-and-modules/contributing-packages-to-the-registry) your package to npm.
 
-## More information
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
 
-Refer to our [documentation on creating nodes](https://docs.n8n.io/integrations/creating-nodes/) for detailed information on building your own nodes.
+3. Build the project:
+   ```bash
+   npm run build
+   ```
+
+4. Run linting:
+   ```bash
+   npm run lint
+   ```
+
+### Testing
+
+To test the node locally with n8n:
+
+1. Build the project: `npm run build`
+2. Link the package: `npm link`
+3. In your n8n installation: `npm link n8n-nodes-persistent-variables`
+4. Restart n8n
 
 ## License
 
-[MIT](https://github.com/n8n-io/n8n-nodes-starter/blob/master/LICENSE.md)
+[MIT](LICENSE.md)
